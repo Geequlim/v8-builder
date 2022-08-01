@@ -1,0 +1,260 @@
+name: Build v8
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of V8 to build'
+        default: 10.3.174.20
+        required: true
+      type:
+        type: choice
+        description: Build target type
+        options:
+          - static
+          - dynamic
+        required: true
+        default: static
+      tag:
+        description: 'Build tag'
+        required: true
+
+jobs:
+  build_linux_x64:
+    name: Linux x86_64
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./linux.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  build_windows_x86:
+    name: Windows (x86)
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      shell: cmd
+      run: |
+        cd %GITHUB_WORKSPACE%
+        call .\windows.cmd x86 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: v8/v8/output/**/*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin_win64
+        path: v8/v8/output/**/*
+
+  build_windows_x86MD:
+    name: Windows (x86-MD)
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      shell: cmd
+      run: |
+        cd %GITHUB_WORKSPACE%
+        call .\windows.cmd x86 ${{github.event.inputs.type}} ${{github.event.inputs.version}} MD
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: v8/v8/output/**/*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin_win64
+        path: v8/v8/output/**/*
+
+  build_windows_x64:
+    name: Windows (x86_64)
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      shell: cmd
+      run: |
+        cd %GITHUB_WORKSPACE%
+        call .\windows.cmd x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: v8/v8/output/**/*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin_win64
+        path: v8/v8/output/**/*
+
+  build_windows_x64MD:
+    name: Windows (x86_64-MD)
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      shell: cmd
+      run: |
+        cd %GITHUB_WORKSPACE%
+        call .\windows.cmd x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}} MD
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: v8/v8/output/**/*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin_win64
+        path: v8/v8/output/**/*
+
+  build_macos:
+    name: macOS (x86_64)
+    runs-on: macos-10.15
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Xcode 12.0 to use SDK 10.15
+      run: sudo xcode-select -switch "/Applications/Xcode_12.app"
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./macos.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  build_macos_arm64:
+    name: macOS (arm64)
+    runs-on: macos-11
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./macos.sh arm64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  build_android_arm:
+    name: Android (armeabi-v7a)
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./android.sh arm ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  build_android_arm64:
+    name: Android (arm64-v8a)
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./android.sh arm64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  build_android_x64:
+    name: Android (x86_64)
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./android.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  build_ios:
+    name: iOS (arm64)
+    runs-on: macos-10.15
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Xcode 12.0 to use SDK 10.15
+      run: sudo xcode-select -switch "/Applications/Xcode_12.app"
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./ios.sh arm64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  build_ios_x64:
+    name: iOS (x86_64)
+    runs-on: macos-10.15
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Xcode 12.0 to use SDK 10.15
+      run: sudo xcode-select -switch "/Applications/Xcode_12.app"
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        sh ./ios.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - build_linux_x64
+      - build_macos
+      - build_macos_arm64
+      - build_windows_x86
+      - build_windows_x86MD
+      - build_windows_x64
+      - build_windows_x64MD
+      - build_android_arm
+      - build_android_arm64
+      - build_android_x64
+      - build_ios
+      - build_ios_x64
+    steps:
+      - uses: actions/download-artifact@v1
+        with:
+          name: bin
+          path: bin/
+      - name: Create Release Asset
+        run: |
+          cd bin/ && tar cvfz ../v8_${{github.event.inputs.version}}_${{github.event.inputs.type}}.tgz include libs && cd -
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: V8_${{github.event.inputs.version}}_${{ github.event.inputs.type }}_${{ github.event.inputs.tag }}
+          release_name: V8_${{github.event.inputs.version}}_${{ github.event.inputs.type }}_${{github.event.inputs.tag}}
+          draft: false
+          prerelease: false
+      - name: Upload V8
+        #id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: ./v8_${{github.event.inputs.version}}_${{github.event.inputs.type}}.tgz
+          asset_name: v8_${{github.event.inputs.version}}_${{github.event.inputs.type}}.tgz
+          asset_content_type: application/tgz
+
