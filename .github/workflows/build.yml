@@ -192,7 +192,7 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./ios.sh arm64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./ios.sh arm64 static ${{github.event.inputs.version}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -208,7 +208,7 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./ios.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./ios.sh x64 static ${{github.event.inputs.version}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin

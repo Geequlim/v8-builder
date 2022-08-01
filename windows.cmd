@@ -29,4 +29,4 @@ echo =====[ Building V8 ]=====
 node %~dp0\build.js win %ABI% %TYPE% %CRT%
 
 echo =====[ Copy V8 header ]=====
-xcopy include output\include /s/h/e/k/f/c
+xcopy include output\include\ /s/h/e/k/f/c

@@ -65,12 +65,17 @@ function addlib(name, dir = '.', outdir = '.') {
                 break;
         }
     }
-    const src = path.join(`${dir}/${prefix}${name}.${ext}`);
-    libs.push({ name, src, outdir });
-    if (target_os === 'win' && !is_static) {
-        if (fs.existsSync(src + '.pdb')) libs.push({ name: `${name}.pdb`, src: src + '.pdb', outdir });
-        if (fs.existsSync(src + '.lib')) libs.push({ name: `${name}.lib`, src: src + '.lib', outdir });
+    let src = path.join(`${dir}/${prefix}${name}.${ext}`);
+    
+    if (!is_static) {
+        if (target_os === 'win') {
+            if (fs.existsSync(src + '.pdb')) libs.push({ name: `${name}.pdb`, src: src + '.pdb', outdir });
+            if (fs.existsSync(src + '.lib')) libs.push({ name: `${name}.lib`, src: src + '.lib', outdir });
+        } else if (target_os === 'android') {
+            if (!fs.existsSync(src)) src = path.join(`${dir}/${prefix}${name}.cr.${ext}`);
+        }
     }
+    libs.push({ name, src, outdir });
 }
 
 if (is_static) {
@@ -85,15 +90,7 @@ if (is_static) {
         addlib('chrome_zlib')
     }
 }
-
-if (win_crt === 'MD') {
-    const build = 'build\\config\\win\\BUILD.gn';
-    var lines = fs.readFileSync(build, 'utf-8').split(/[\n\r]/);
-    for(var i = 0; i < lines.length; i++) {
-        lines[i] = lines[i].replace("configs = [ \":static_crt\" ]", "configs = [ \":dynamic_crt\" ]");
-    }
-    fs.writeFileSync(build, lines.join('\n'), 'utf-8');
-}
+applyPatches();
 
 let args = Object.entries(options).map(pair => {
     let key = pair[0];
@@ -121,3 +118,26 @@ libs.map(lib => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive: true});
     fs.copyFileSync(`out.gn/${target}/${lib.src}`, file);
 });
+
+
+function applyPatches() {
+    function replace(file, src, content) {
+        let text = fs.readFileSync(file, 'utf-8')
+        text = text.replace(src, content)
+        fs.writeFileSync(file, text, 'utf-8');
+    }
+
+    if (target_os === 'win') {
+        if (is_static) {
+            replace('BUILD.gn', /v8_source_set\("v8_heap_base_headers"\) {/, 'v8_header_set("v8_heap_base_headers") {');
+        }
+        if (win_crt === 'MD') {
+            const build = 'build\\config\\win\\BUILD.gn';
+            var lines = fs.readFileSync(build, 'utf-8').split(/[\n\r]/);
+            for(var i = 0; i < lines.length; i++) {
+                lines[i] = lines[i].replace("configs = [ \":static_crt\" ]", "configs = [ \":dynamic_crt\" ]");
+            }
+            fs.writeFileSync(build, lines.join('\n'), 'utf-8');
+        }
+    }
+}
