@@ -48,10 +48,6 @@ jobs:
       with:
         name: bin
         path: v8/v8/output/**/*
-    - uses: actions/upload-artifact@v2
-      with:
-        name: bin_win64
-        path: v8/v8/output/**/*
 
   build_windows_x86MD:
     name: Windows (x86-MD)
@@ -66,10 +62,6 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: bin
-        path: v8/v8/output/**/*
-    - uses: actions/upload-artifact@v2
-      with:
-        name: bin_win64
         path: v8/v8/output/**/*
 
   build_windows_x64:
@@ -86,10 +78,6 @@ jobs:
       with:
         name: bin
         path: v8/v8/output/**/*
-    - uses: actions/upload-artifact@v2
-      with:
-        name: bin_win64
-        path: v8/v8/output/**/*
 
   build_windows_x64MD:
     name: Windows (x86_64-MD)
@@ -104,10 +92,6 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: bin
-        path: v8/v8/output/**/*
-    - uses: actions/upload-artifact@v2
-      with:
-        name: bin_win64
         path: v8/v8/output/**/*
 
   build_macos:

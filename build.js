@@ -17,9 +17,9 @@ const [ _node, _script, target_os, target_cpu, lib_type, win_crt ] = process.arg
 const is_static = lib_type === 'dynamic' ? false : true;
 
 const options = {
-    is_clang: target_os === 'win' ? false : true,
     is_debug: false,
     is_component_build: !is_static,
+    is_clang: (target_os === 'win' && is_static) ? false : true,
 
     target_os,
     target_cpu,
