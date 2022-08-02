@@ -47,26 +47,11 @@ let target = `${target_cpu}.release`;
 let output = `output/libs/${target_os}_${target_cpu}${win_crt==='MD' ? '_md' : ''}`;
 let libs = [];
 
+const ext = is_static ? { win: 'lib' }[target_os] || 'a' : { win: 'dll', mac: 'dylib'}[target_os] || 'so';
+const prefix = target_os === 'win' ? '' : 'lib';
+
 function addlib(name, dir = '.', outdir = '.') {
-    let ext = '';
-    const prefix = target_os === 'win' ? '' : 'lib';
-    if (is_static) {
-        ext = target_os === 'win' ? 'lib' : 'a';
-    } else {
-        switch (target_os) {
-            case 'osx':
-                ext = 'dylib';
-                break;
-            case 'win':
-                ext = 'dll';
-                break;
-            default:
-                ext = 'so';
-                break;
-        }
-    }
     let src = path.join(`${dir}/${prefix}${name}.${ext}`);
-    
     if (!is_static) {
         if (target_os === 'win') {
             if (fs.existsSync(src + '.pdb')) libs.push({ name: `${name}.pdb`, src: src + '.pdb', outdir });
@@ -81,13 +66,13 @@ function addlib(name, dir = '.', outdir = '.') {
 if (is_static) {
     addlib('v8_monolith', 'obj');
 } else {
-    addlib('v8')
-    addlib('v8_libbase')
-    addlib('v8_libplatform')
-    if (target_os === 'win') {
-        addlib('zlib')
-    } else {
-        addlib('chrome_zlib')
+    for (const entry of fs.readdirSync(`out.gn/${target}`)) {
+        const src = path.join(`out.gn/${target}`, entry);
+        if (entry.endsWith(`.${ext}`) && fs.statSync(src).isFile()) {
+            libs.push({ src: entry, outdir: '.' });
+            const name = entry.substring('lib'.length, entry.indexOf('.'));
+            addlib(name);
+        }
     }
 }
 applyPatches();
@@ -132,12 +117,7 @@ function applyPatches() {
             replace('BUILD.gn', /v8_source_set\("v8_heap_base_headers"\) {/, 'v8_header_set("v8_heap_base_headers") {');
         }
         if (win_crt === 'MD') {
-            const build = 'build\\config\\win\\BUILD.gn';
-            var lines = fs.readFileSync(build, 'utf-8').split(/[\n\r]/);
-            for(var i = 0; i < lines.length; i++) {
-                lines[i] = lines[i].replace("configs = [ \":static_crt\" ]", "configs = [ \":dynamic_crt\" ]");
-            }
-            fs.writeFileSync(build, lines.join('\n'), 'utf-8');
+            replace('build\\config\\win\\BUILD.gn', /configs\s?=\s?\[\s?\"\:static_crt\"\s?\]/gm, 'configs = [ ":dynamic_crt" ]');
         }
     }
 }
