@@ -13,9 +13,10 @@ function execute(commands) {
     }
 }
 
+// -------------------- Detect and configure build target --------------------
+
 const [ _node, _script, target_os, target_cpu, lib_type, win_crt ] = process.argv;
 const is_static = lib_type === 'dynamic' ? false : true;
-
 const options = {
     is_debug: false,
     is_component_build: !is_static,
@@ -45,67 +46,10 @@ const options = {
 let action = is_static ? 'v8_monolith' : 'v8';
 let target = `${target_cpu}.release`;
 let output = `output/libs/${target_os}_${target_cpu}${win_crt==='MD' ? '_md' : ''}`;
-let libs = [];
-
-const ext = is_static ? { win: 'lib' }[target_os] || 'a' : { win: 'dll', mac: 'dylib'}[target_os] || 'so';
-const prefix = target_os === 'win' ? '' : 'lib';
-
-function addlib(name, dir = '.', outdir = '.') {
-    let src = path.join(`${dir}/${prefix}${name}.${ext}`);
-    if (!is_static) {
-        if (target_os === 'win') {
-            if (fs.existsSync(src + '.pdb')) libs.push({ name: `${name}.pdb`, src: src + '.pdb', outdir });
-            if (fs.existsSync(src + '.lib')) libs.push({ name: `${name}.lib`, src: src + '.lib', outdir });
-        } else if (target_os === 'android') {
-            if (!fs.existsSync(src)) src = path.join(`${dir}/${prefix}${name}.cr.${ext}`);
-        }
-    }
-    libs.push({ name, src, outdir });
-}
-
-if (is_static) {
-    addlib('v8_monolith', 'obj');
-} else {
-    for (const entry of fs.readdirSync(`out.gn/${target}`)) {
-        const src = path.join(`out.gn/${target}`, entry);
-        if (entry.endsWith(`.${ext}`) && fs.statSync(src).isFile()) {
-            libs.push({ src: entry, outdir: '.' });
-            const name = entry.substring('lib'.length, entry.indexOf('.'));
-            addlib(name);
-        }
-    }
-}
-applyPatches();
-
-let args = Object.entries(options).map(pair => {
-    let key = pair[0];
-    let value = pair[1];
-    if (typeof value === 'string') {
-        value = JSON.stringify(value);
-    } else if (typeof value === 'undefined') {
-        return '';
-    }
-    return `${key} = ${value}`;
-});
-
-execute([
-    target_os === 'win' ?
-        `gn gen out.gn\\${target} -args="${args.map(item => item.replace(/"/g, '""')).join(' ')}"`:
-        `python ./tools/dev/v8gen.py ${target} -vv -- '${args.join('\n')}'`,
-    `ninja -C out.gn/${target} -t clean`,
-    `ninja -C out.gn/${target} ${action}`
-]);
-
 fs.mkdirSync(output, { recursive: true });
-libs.map(lib => {
-    const file = path.join(output, lib.outdir, `${path.basename(lib.src)}`);
-    const dir = path.dirname(file);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive: true});
-    fs.copyFileSync(`out.gn/${target}/${lib.src}`, file);
-});
 
-
-function applyPatches() {
+// -------------------- Apply patches for target --------------------
+function apply_patches() {
     function replace(file, src, content) {
         let text = fs.readFileSync(file, 'utf-8')
         text = text.replace(src, content)
@@ -121,3 +65,69 @@ function applyPatches() {
         }
     }
 }
+apply_patches();
+
+// -------------------- Build target with GN --------------------
+let args = Object.entries(options).map(pair => {
+    let key = pair[0];
+    let value = pair[1];
+    if (typeof value === 'string') {
+        value = JSON.stringify(value);
+    } else if (typeof value === 'undefined') {
+        return '';
+    }
+    return `${key} = ${value}`;
+});
+execute([
+    target_os === 'win' ?
+        `gn gen out.gn\\${target} -args="${args.map(item => item.replace(/"/g, '""')).join(' ')}"`:
+        `python ./tools/dev/v8gen.py ${target} -vv -- '${args.join('\n')}'`,
+    `ninja -C out.gn/${target} -t clean`,
+    `ninja -C out.gn/${target} ${action}`
+]);
+
+
+// -------------------- Copy libs to output --------------------
+let libs = [];
+const ext = is_static ? { win: 'lib' }[target_os] || 'a' : { win: 'dll', mac: 'dylib'}[target_os] || 'so';
+const prefix = target_os === 'win' ? '' : 'lib';
+
+function addlib(name, dir = '.', outdir = '.') {
+    let src = path.join(`${dir}/${prefix}${name}.${ext}`);
+    if (!is_static) {
+        if (target_os === 'win') {
+            let pdb = src + ".pdb";
+            libs.push({ name: `${name}.pdb`, src: pdb, outdir });
+            let lib = src + ".lib";
+            libs.push({ name: `${name}.lib`, src: lib, outdir });
+        } else if (target_os === 'android') {
+            src = path.join(`${dir}/${prefix}${name}.cr.${ext}`);
+        }
+    }
+    libs.push({ name, src, outdir });
+}
+
+if (is_static) {
+    addlib('v8_monolith', 'obj');
+} else {
+    for (const entry of fs.readdirSync(`out.gn/${target}`)) {
+        const src = path.join(`out.gn/${target}`, entry);
+        if (entry.endsWith(`.${ext}`) && fs.statSync(src).isFile()) {
+            const name = entry.substring(prefix.length, entry.indexOf('.'));
+            addlib(name);
+        }
+    }
+}
+
+libs.map(lib => {
+    const src = `out.gn/${target}/${lib.src}`;
+    const file = path.join(output, lib.outdir, `${path.basename(lib.src)}`);
+    if (fs.existsSync(src)) {
+        const dir = path.dirname(file);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive: true});
+        fs.copyFileSync(src, file);
+        console.log(`copy ${src} ==> ${file}`);
+    } else {
+        console.warn(`copy ${src} ==> ${file} failed`);
+    }
+});
