@@ -1,9 +1,6 @@
 name: Build v8
 
 on:
-  push:
-    paths:
-      - v8_version
   workflow_dispatch:
     inputs:
       version:

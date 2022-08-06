@@ -41,5 +41,5 @@ jobs:
         sh ./build.sh mac ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }}
     - uses: actions/upload-artifact@v2
       with:
-        name: bin
+        name: macos-${{matrix.target_cpu}}-${{matrix.type}}
         path: ~/v8/v8/output/**/*

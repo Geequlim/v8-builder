@@ -42,5 +42,5 @@ jobs:
         call .\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
     - uses: actions/upload-artifact@v2
       with:
-        name: bin
+        name: windows-${{matrix.target_cpu}}-${{matrix.type}}
         path: ~/v8/v8/output/**/*

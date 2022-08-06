@@ -2,7 +2,7 @@ module.exports = async ({github, context, core}) => {
     var total_slept = 0;
     var downloaded_files = [];
     var seen_completed_wfs = [];
-    var expected_to_see = ['android', 'ios', 'linux', 'macos', 'windows'].length;
+    var expected_to_see = 1;//['android', 'ios', 'linux', 'macos', 'windows'].length;
     while (total_slept < 10800000 && seen_completed_wfs.length < expected_to_see) {
         var all_workflows = await github.rest.actions.listWorkflowRunsForRepo({
             owner: context.repo.owner,
