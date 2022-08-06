@@ -38,7 +38,7 @@ jobs:
         version: ${{ github.inputs.version }}
     - name: Run Build Script
       run: |
-        cd %GITHUB_WORKSPACE%
+        cd ${{ github.workspace }}
         call .\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
     - uses: actions/upload-artifact@v2
       with:
