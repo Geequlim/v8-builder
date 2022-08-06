@@ -1,12 +1,15 @@
 name: Build v8
 
 on:
+  push:
+    paths:
+      - .github/workflows/v8_version
   workflow_dispatch:
     inputs:
       version:
         description: 'Version of V8 to build'
-        default: 10.3.174.20
-        required: true
+        # default: 10.3.174.20
+        required: false
       type:
         type: choice
         description: Build target type
@@ -19,16 +22,33 @@ on:
         description: 'Build tag'
         required: true
 
+env:
+  VERSION: ""
+
 jobs:
+  env_setup:
+    name: Setup env on Unix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup env variables
+        run: |
+          cd $GITHUB_WORKSPACE
+          VERSION=${{github.event.inputs.version}}
+          VERSION=${VERSION:-"$(cat ./.github/workflows/v8_version)"}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "V8 version set to" $VERSION
+
   build_linux_x64:
     name: Linux (x86_64)
     runs-on: ubuntu-18.04
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./linux.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./linux.sh x64 ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -37,13 +57,14 @@ jobs:
   build_windows_x86:
     name: Windows (x86)
     runs-on: windows-2019
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       shell: cmd
       run: |
         cd %GITHUB_WORKSPACE%
-        call .\windows.cmd x86 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        call .\windows.cmd x86 ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -52,13 +73,14 @@ jobs:
   build_windows_x86MD:
     name: Windows (x86-MD)
     runs-on: windows-2019
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       shell: cmd
       run: |
         cd %GITHUB_WORKSPACE%
-        call .\windows.cmd x86 ${{github.event.inputs.type}} ${{github.event.inputs.version}} MD
+        call .\windows.cmd x86 ${{github.event.inputs.type}} ${{env.VERSION}} MD
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -67,13 +89,14 @@ jobs:
   build_windows_x64:
     name: Windows (x86_64)
     runs-on: windows-2019
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       shell: cmd
       run: |
         cd %GITHUB_WORKSPACE%
-        call .\windows.cmd x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        call .\windows.cmd x64 ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -82,13 +105,14 @@ jobs:
   build_windows_x64MD:
     name: Windows (x86_64-MD)
     runs-on: windows-2019
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       shell: cmd
       run: |
         cd %GITHUB_WORKSPACE%
-        call .\windows.cmd x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}} MD
+        call .\windows.cmd x64 ${{github.event.inputs.type}} ${{env.VERSION}} MD
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -97,6 +121,7 @@ jobs:
   build_macos:
     name: macOS (x86_64)
     runs-on: macos-10.15
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Use Xcode 12.0 to use SDK 10.15
@@ -104,7 +129,7 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./macos.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./macos.sh x64 ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -113,12 +138,13 @@ jobs:
   build_macos_arm64:
     name: macOS (arm64)
     runs-on: macos-11
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./macos.sh arm64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./macos.sh arm64 ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -127,12 +153,13 @@ jobs:
   build_android_arm:
     name: Android (armeabi-v7a)
     runs-on: ubuntu-18.04
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./android.sh arm ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./android.sh arm ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -141,12 +168,13 @@ jobs:
   build_android_arm64:
     name: Android (arm64-v8a)
     runs-on: ubuntu-18.04
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./android.sh arm64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./android.sh arm64 ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -155,12 +183,13 @@ jobs:
   build_android_x64:
     name: Android (x86_64)
     runs-on: ubuntu-18.04
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./android.sh x64 ${{github.event.inputs.type}} ${{github.event.inputs.version}}
+        sh ./android.sh x64 ${{github.event.inputs.type}} ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -169,6 +198,7 @@ jobs:
   build_ios:
     name: iOS (arm64)
     runs-on: macos-10.15
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Use Xcode 12.0 to use SDK 10.15
@@ -176,7 +206,7 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./ios.sh arm64 static ${{github.event.inputs.version}}
+        sh ./ios.sh arm64 static ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -185,6 +215,7 @@ jobs:
   build_ios_x64:
     name: iOS (x86_64)
     runs-on: macos-10.15
+    needs: [ "env_setup" ]
     steps:
     - uses: actions/checkout@v2
     - name: Use Xcode 12.0 to use SDK 10.15
@@ -192,7 +223,7 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        sh ./ios.sh x64 static ${{github.event.inputs.version}}
+        sh ./ios.sh x64 static ${{env.VERSION}}
     - uses: actions/upload-artifact@v2
       with:
         name: bin
@@ -220,15 +251,15 @@ jobs:
           path: bin/
       - name: Create Release Asset
         run: |
-          cd bin/ && tar cvfz ../v8_${{github.event.inputs.version}}_${{github.event.inputs.type}}.tgz include libs && cd -
+          cd bin/ && tar cvfz ../v8_${{env.VERSION}}_${{github.event.inputs.type}}.tgz include libs && cd -
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
-          tag_name: V8_${{github.event.inputs.version}}_${{ github.event.inputs.type }}_${{ github.event.inputs.tag }}
-          release_name: V8_${{github.event.inputs.version}}_${{ github.event.inputs.type }}_${{github.event.inputs.tag}}
+          tag_name: V8_${{env.VERSION}}_${{ github.event.inputs.type }}_${{ github.event.inputs.tag }}
+          release_name: V8_${{env.VERSION}}_${{ github.event.inputs.type }}_${{github.event.inputs.tag}}
           draft: false
           prerelease: false
       - name: Upload V8
@@ -238,7 +269,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: ./v8_${{github.event.inputs.version}}_${{github.event.inputs.type}}.tgz
-          asset_name: v8_${{github.event.inputs.version}}_${{github.event.inputs.type}}.tgz
+          asset_path: ./v8_${{env.VERSION}}_${{github.event.inputs.type}}.tgz
+          asset_name: v8_${{env.VERSION}}_${{github.event.inputs.type}}.tgz
           asset_content_type: application/tgz
 
