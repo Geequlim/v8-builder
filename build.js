@@ -9,7 +9,12 @@ function execute(commands) {
     }
     for (const cmd of commands) {
         console.log(cmd);
-        child_process.execSync(cmd, { stdio: 'inherit' });
+        try {
+            child_process.execSync(cmd, { stdio: 'inherit' });
+        } catch (error) {
+            console.error(error);
+            process.exit(error.status || 1);
+        }
     }
 }
 
