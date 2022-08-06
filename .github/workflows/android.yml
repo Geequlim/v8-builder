@@ -23,8 +23,8 @@ env:
 
 jobs:
   build-android:
-    runs-on: ubuntu-20.04
-    name: Build ${{ matrix.type }} library of V8 for android on ${{ matrix.target_cpu }}
+    runs-on: ubuntu-latest
+    name: Android ${{ matrix.type }} (${{ matrix.target_cpu }})
     strategy:
       fail-fast: false
       matrix:
