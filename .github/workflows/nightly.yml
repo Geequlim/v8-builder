@@ -5,8 +5,12 @@ on:
   schedule:
     - cron: '0 2 * * *' # Run at 2 AM UTC
 
+env:
+  GITHUB_TOKEN: ${{secrets.REPOSITORY_TOKEN}}
+
 jobs:
   nightly:
+    permissions: write-all
     name: Update Version Nightly
     runs-on: ubuntu-latest
     steps:
@@ -17,7 +21,8 @@ jobs:
         yarn install
         node ./.github/workflows/version.js
     - name: Commit & Push changes
-      uses: Andro999b/push@v1.3
+      uses: actions-js/push@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: main
         message: Update v8 version

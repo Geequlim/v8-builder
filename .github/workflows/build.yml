@@ -3,7 +3,7 @@ name: Build v8
 on:
   push:
     paths:
-      - .github/workflows/v8_version
+      - v8_version
   workflow_dispatch:
     inputs:
       version:
@@ -27,7 +27,7 @@ env:
 
 jobs:
   env_setup:
-    name: Setup env on Unix
+    name: Setup environment
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           VERSION=${{github.event.inputs.version}}
-          VERSION=${VERSION:-"$(cat ./.github/workflows/v8_version)"}
+          VERSION=${VERSION:-"$(cat v8_version)"}
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "V8 version set to" $VERSION
 
