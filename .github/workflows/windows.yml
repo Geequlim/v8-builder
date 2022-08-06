@@ -23,7 +23,7 @@ env:
 
 jobs:
   build_windows:
-    name: 🪟 Windows ${{ matrix.type }} (${{ matrix.target_cpu }${{matrix.crt}})
+    name: 🪟 Windows ${{ matrix.type }} (${{ matrix.target_cpu }}${{ matrix.crt }})
     runs-on: windows-latest
     strategy:
       fail-fast: false

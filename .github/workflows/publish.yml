@@ -11,7 +11,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          const script = require('./.github/workflows/publish.js')
+          const script = require('${{github.workspace}}/.github/workflows/publish.js')
           await script({github, context, core})
     - name: show dir
       run: ls -R

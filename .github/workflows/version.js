@@ -42,7 +42,7 @@ request({
     const version = JSON.parse(response.body);
     const v8_version = version.v8_version;
     const versionFile = 'v8_version';
-    const lastVersion = fs.readFileSync(versionFile, 'utf-8');
+    const lastVersion = fs.readFileSync(versionFile, 'utf-8').replace(/\s/gm, '');
     if (lastVersion != v8_version) {
       fs.writeFileSync(versionFile, v8_version, 'utf-8');
       updateV8(v8_version, lastVersion);

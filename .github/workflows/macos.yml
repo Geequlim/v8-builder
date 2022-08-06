@@ -24,7 +24,7 @@ env:
 jobs:
   build-macos:
     runs-on: macos-latest
-    name: 🍎 macOS ${{ matrix.type }} (${{ matrix.target_cpu })
+    name: 🍎 macOS ${{ matrix.type }} (${{ matrix.target_cpu }})
     strategy:
       fail-fast: false
       matrix:
