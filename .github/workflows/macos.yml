@@ -1,0 +1,45 @@
+name: 🍎 macOS Builds
+on:
+  push:
+      paths:
+        - v8_version
+  pull_request: {}
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of V8 to build'
+        # default: 10.3.174.20
+        required: false
+      tag:
+        description: 'Build tag'
+        required: true
+
+concurrency:
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-macos
+  cancel-in-progress: true
+
+env:
+  VERSION: ""
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    name: 🍎 macOS ${{ matrix.type }} (${{ matrix.target_cpu })
+    strategy:
+      fail-fast: false
+      matrix:
+        target_cpu: [ 'x64', 'arm64' ]
+        type: [ 'static', 'dynamic' ]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./.github/actions/v8-version
+      with:
+        version: ${{ github.inputs.version }}
+    - name: Run Build Script
+      run: |
+        cd ${{ github.workspace }}
+        sh ./build.sh mac ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
