@@ -37,6 +37,7 @@ jobs:
       with:
         version: ${{ github.inputs.version }}
     - name: Run Build Script
+      shell: cmd
       run: |
         cd ${{ github.workspace }}
         call .\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
