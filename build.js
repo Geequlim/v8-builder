@@ -20,8 +20,14 @@ function execute(commands) {
 
 // -------------------- Detect and configure build target --------------------
 
-const [ _node, _script, target_os, target_cpu, lib_type, win_crt ] = process.argv;
-const is_static = lib_type === 'dynamic' ? false : true;
+let [ _node, _script, target_os, target_cpu, lib_type, flags ] = process.argv;
+if (flags) {
+    if (target_os === 'win') {
+        flags = target_os === 'win' && flags === 'MD' ? 'MD' : '';
+    }
+}
+
+const is_static = target_os === 'ios' || (lib_type === 'dynamic' ? false : true)
 const options = {
     is_debug: false,
     is_component_build: !is_static,
@@ -50,7 +56,7 @@ const options = {
 
 let action = is_static ? 'v8_monolith' : 'v8';
 let target = `${target_cpu}.release`;
-let output = `output/libs/${target_os}_${target_cpu}${win_crt==='MD' ? '_md' : ''}`;
+let output = `output/libs/${target_os}_${target_cpu}${flags || ''}`;
 fs.mkdirSync(output, { recursive: true });
 
 // -------------------- Apply patches for target --------------------
@@ -65,7 +71,7 @@ function apply_patches() {
         if (is_static) {
             replace('BUILD.gn', /v8_source_set\("v8_heap_base_headers"\) {/, 'v8_header_set("v8_heap_base_headers") {');
         }
-        if (win_crt === 'MD') {
+        if (flags === 'MD') {
             replace('build\\config\\win\\BUILD.gn', /configs\s?=\s?\[\s?\"\:static_crt\"\s?\]/gm, 'configs = [ ":dynamic_crt" ]');
         }
     }

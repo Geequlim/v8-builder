@@ -1,7 +1,8 @@
-set ABI=%1
-set TYPE=%2
-set VERSION=%3
-set CRT=%4
+set OS=%1
+set ABI=%2
+set TYPE=%3
+set VERSION=%4
+set CRT=%5
 
 cd %HOMEPATH%
 echo =====[ Getting Depot Tools ]=====
@@ -26,7 +27,7 @@ cd ..\..\..\
 call gclient sync
 
 echo =====[ Building V8 ]=====
-node %~dp0\build.js win %ABI% %TYPE% %CRT%
+node %~dp0\build.js %OS% %ABI% %TYPE% %CRT%
 
 echo =====[ Copy V8 header ]=====
 xcopy include output\include\ /s/h/e/k/f/c

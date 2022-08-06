@@ -1,0 +1,19 @@
+name: Set V8 version
+description: Set VERSION variable value
+inputs:
+  version:
+    default: ""
+    required: false
+    description: The version name of V8 to build
+
+runs:
+  using: composite
+  steps:
+    - name: Set v8 version
+      shell: 'sh'
+      run: |
+        cd $GITHUB_WORKSPACE
+        VERSION=${{ inputs.version }}
+        VERSION=${VERSION:-"$(cat v8_version)"}
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        echo "V8 version set to" $VERSION

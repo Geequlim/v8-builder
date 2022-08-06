@@ -1,0 +1,45 @@
+name: 🤖 Android Builds
+on:
+  push:
+      paths:
+        - v8_version
+  pull_request: {}
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of V8 to build'
+        # default: 10.3.174.20
+        required: false
+      tag:
+        description: 'Build tag'
+        required: true
+
+concurrency:
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-android
+  cancel-in-progress: true
+
+env:
+  VERSION: ""
+
+jobs:
+  build-android:
+    runs-on: ubuntu-20.04
+    name: Build ${{ matrix.type }} library of V8 for android on ${{ matrix.target_cpu }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target_cpu: [ 'arm', 'arm64', 'x64' ]
+        type: [ 'static', 'dynamic' ]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./.github/actions/v8-version
+      with:
+        version: ${{ github.inputs.version }}
+    - name: Run Build Script
+      run: |
+        cd ${{ github.workspace }}
+        sh ./build.sh android ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: ~/v8/v8/output/**/*
