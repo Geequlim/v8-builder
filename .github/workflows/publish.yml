@@ -1,0 +1,25 @@
+name: 🚢 Publish release
+on:
+  push:
+      paths:
+        - v8_version
+jobs:
+  collect-template:
+    runs-on: ubuntu-latest
+    steps:
+    - name: download artifacts
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const script = require('./.github/workflows/publish.js')
+          await script({github, context, core})
+    - name: show dir
+      run: ls -R
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: '*.zip'
+        tag: ${{ github.ref }}
+        overwrite: 'true'
+        file_glob: 'true'
