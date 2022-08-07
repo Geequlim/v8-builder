@@ -1,7 +1,6 @@
-name: Update Version Nightly
+name: ⬆️ Update V8 Version
 on:
-  workflow_dispatch:
-    inputs: {}
+  workflow_dispatch: {}
   schedule:
     - cron: '0 0 * * *' # Run at 0 AM UTC
 
@@ -37,20 +36,11 @@ jobs:
     name: Dispatch build and release
     runs-on: ubuntu-latest
     needs: update-version
-    strategy:
-      fail-fast: false
-      matrix:
-        workflow:
-          - 🐧 Linux Builds
-          - 🍎 macOS Builds
-          - 🪟 Windows Builds
-          - 🤖 Android Builds
-          - 🍎 iOS Builds
-          - 🚢 Publish release
     steps:
-      - name: Start build for linux
+      - name: Start build and publish
         if: ${{ needs.update-version.outputs.version != needs.update-version.outputs.version-last }}
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: ${{ matrix.workflow }}
+          workflow: 🌐 Start build and publish
           token: ${{ secrets.ACCESS_TOKEN }}
+          inputs: '{ "version": "${{ needs.update-version.outputs.version }}" }'

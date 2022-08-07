@@ -1,11 +1,16 @@
-name: 🚢 Publish release
+name: 🚢 Publish Release
 on:
   push:
     tags:
       - '*'
     paths:
       - v8_version
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      version:
+        required: false
+        description: V8 version to publish
+
 jobs:
   collect-template:
     runs-on: ubuntu-latest
@@ -14,7 +19,7 @@ jobs:
     - uses: ./.github/actions/v8-version
       with:
         version: ${{ github.inputs.version }}
-    - name: download artifacts
+    - name: Download artifacts
       uses: actions/github-script@v6
       with:
         script: |-

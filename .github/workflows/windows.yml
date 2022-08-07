@@ -35,8 +35,8 @@ jobs:
       shell: cmd
       run: |
         cd ${{ github.workspace }}
-        @REM call .\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
-        call .\.github\test\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
+        call .\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
+        @REM call .\.github\test\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
     - uses: actions/upload-artifact@v2
       with:
         name: windows-${{matrix.target_cpu}}${{matrix.crt}}-${{matrix.type}}

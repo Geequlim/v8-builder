@@ -20,7 +20,7 @@ function execute(commands) {
 
 // -------------------- Detect and configure build target --------------------
 
-let [ _node, _script, target_os, target_cpu, lib_type, flags ] = process.argv;
+let [ _node, _script, version, target_os, target_cpu, lib_type, flags ] = process.argv;
 if (flags) {
     if (target_os === 'win') {
         flags = target_os === 'win' && flags === 'MD' ? 'MD' : '';
@@ -58,6 +58,19 @@ let action = is_static ? 'v8_monolith' : 'v8';
 let target = `${target_cpu}.release`;
 let output = `output/libs/${target_os}_${target_cpu}${flags || ''}`;
 fs.mkdirSync(output, { recursive: true });
+
+console.log('========================================')
+console.log('Start build V8:');
+console.log(
+    Object.entries({
+        version: process.env.VERSION,
+        target_os,
+        target_cpu,
+        type: is_static ? 'static' : 'dynamic',
+        flags
+    }).map(pair => `${pair[0]} = ${pair[1]}`).join('\n')
+);
+console.log('========================================')
 
 // -------------------- Apply patches for target --------------------
 function apply_patches() {

@@ -27,7 +27,7 @@ cd ..\..\..\
 call gclient sync
 
 echo =====[ Building V8 ]=====
-node %~dp0\build.js %OS% %ABI% %TYPE% %CRT%
+node %~dp0\build.js %VERSION% %OS% %ABI% %TYPE% %CRT%
 
 echo =====[ Copy V8 header ]=====
 xcopy include output\include\ /s/h/e/k/f/c

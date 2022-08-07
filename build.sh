@@ -21,7 +21,7 @@ git checkout refs/tags/$VERSION
 gclient sync
 
 echo "=====[ Building V8 ]====="
-node $GITHUB_WORKSPACE/build.js $OS $ABI $TYPE
+node $GITHUB_WORKSPACE/build.js $VERSION $OS $ABI $TYPE
 
 echo "=====[ Copy V8 header ]====="
 cp -r include output/include
