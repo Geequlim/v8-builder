@@ -27,7 +27,8 @@ jobs:
           var total_slept = 0;
           var downloaded_files = [];
           var seen_completed_wfs = [];
-          var expected_to_see = ['android', 'ios', 'linux', 'macos', 'windows'].length;
+          var platforms = ['android', 'ios', 'linux', 'macos', 'windows'];
+          var expected_to_see = platforms.length;
           var tickInterval = 30000;
           while (total_slept < 10800000 && seen_completed_wfs.length < expected_to_see) {
               var all_workflows = await github.rest.actions.listWorkflowRunsForRepo({
@@ -39,7 +40,8 @@ jobs:
                   if (workflow.head_sha == "${{ github.sha }}") {
                       console.log("found " + workflow.name + " " + workflow.status);
                       if (workflow.status == "completed") {
-                          if (seen_completed_wfs.includes(workflow.name)) {continue;}
+                          if (seen_completed_wfs.includes(workflow.name)) continue;
+                          if (platforms.find(v => workflow.name.toLowerCase().includes(v)) == null) continue;
                           if (workflow.conclusion == "success") {
                               var artifacts = await github.rest.actions.listWorkflowRunArtifacts({
                                   owner: context.repo.owner,
