@@ -21,8 +21,7 @@ jobs:
         yarn install
         node ./.github/workflows/version.js
     - name: Commit & Push changes
-      uses: actions-js/push@master
+      uses: actions-x/commit@v6
       with:
-        github_token: ${{ secrets.REPOSITORY_TOKEN }}
         branch: main
-        message: Update v8 version
+        token: ${{ secrets.REPOSITORY_TOKEN }}
