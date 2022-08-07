@@ -5,15 +5,7 @@ on:
       - '*'
     paths:
       - v8_version
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version of V8 to build'
-        # default: 10.3.174.20
-        required: false
-      tag:
-        description: 'Build tag'
-        required: true
+  workflow_dispatch: {}
 jobs:
   collect-template:
     runs-on: ubuntu-latest
@@ -88,7 +80,7 @@ jobs:
       with:
         tag_name: ${{ env.DATE }}
         release_name: V8_${{ env.VERSION }}_${{ env.DATE }}
-        draft: true
+        draft: false
         prerelease: false
     - uses: xresloader/upload-to-github-release@master
       env:
