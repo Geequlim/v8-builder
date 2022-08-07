@@ -26,6 +26,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |-
+          var fs = require('fs');
           var total_slept = 0;
           var downloaded_files = [];
           var seen_completed_wfs = [];
@@ -50,7 +51,10 @@ jobs:
                                   per_page: 100,
                               });
                               for (const artifact of artifacts.data.artifacts) {
-                                  var fn = '${{github.workspace}}/' + artifact.name + '.zip';
+                                  if (!fs.existsSync('${{github.workspace}}/bin')) {
+                                    fs.mkdirSync('${{github.workspace}}/bin', { recursive: true });
+                                  }
+                                  var fn = '${{github.workspace}}/bin/' + artifact.name + '.zip';
                                   if (downloaded_files.includes(fn)) {continue;}
                                   var download = await github.rest.actions.downloadArtifact({
                                       owner: context.repo.owner,
@@ -58,7 +62,6 @@ jobs:
                                       artifact_id: artifact.id,
                                       archive_format: 'zip',
                                   });
-                                  var fs = require('fs');
                                   fs.writeFileSync(fn, Buffer.from(download.data));
                                   downloaded_files.push(fn);
                               }
@@ -76,7 +79,7 @@ jobs:
           }
           console.log(downloaded_files);
     - name: Show binary files
-      run: ls -R
+      run: ls -R bin
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -91,7 +94,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        file: "*.zip"
+        file: "bin/*.zip"
         release_id: ${{ steps.create_release.outputs.id }}
         overwrite: true
         verbose: true
