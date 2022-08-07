@@ -30,6 +30,7 @@ jobs:
           var downloaded_files = [];
           var seen_completed_wfs = [];
           var expected_to_see = ['android', 'ios', 'linux', 'macos', 'windows'].length;
+          var tickInterval = 30000;
           while (total_slept < 10800000 && seen_completed_wfs.length < expected_to_see) {
               var all_workflows = await github.rest.actions.listWorkflowRunsForRepo({
                   owner: context.repo.owner,
@@ -67,10 +68,10 @@ jobs:
                   }
               }
               if (seen_completed_wfs.length < expected_to_see) {
-                  console.log("sleeping " + 300000);
-                  await new Promise(r => setTimeout(r, 30000));
-                  total_slept = total_slept + 300000;
-                  console.log("done sleeping " + 300000);
+                  console.log("sleeping " + tickInterval);
+                  await new Promise(r => setTimeout(r, tickInterval));
+                  total_slept = total_slept + tickInterval;
+                  console.log("done sleeping " + tickInterval);
               }
           }
           console.log(downloaded_files);
