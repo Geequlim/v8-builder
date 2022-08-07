@@ -6,7 +6,7 @@ on:
     - cron: '0 2 * * *' # Run at 2 AM UTC
 
 env:
-  GITHUB_TOKEN: ${{secrets.REPOSITORY_TOKEN}}
+  REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
 
 jobs:
   nightly:
@@ -23,6 +23,6 @@ jobs:
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.REPOSITORY_TOKEN }}
         branch: main
         message: Update v8 version
