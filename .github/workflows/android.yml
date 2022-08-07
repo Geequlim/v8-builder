@@ -37,5 +37,5 @@ jobs:
         # sh ./.github/test/build.sh android ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }}
     - uses: actions/upload-artifact@v2
       with:
-        name: android-${{matrix.target_cpu}}-${{matrix.type}}
+        name: android-${{matrix.target_cpu}}
         path: ~/v8/v8/output/**/*

@@ -37,5 +37,5 @@ jobs:
         # sh ./.github/test/build.sh mac ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }}
     - uses: actions/upload-artifact@v2
       with:
-        name: macos-${{matrix.target_cpu}}-${{matrix.type}}
+        name: macos-${{matrix.target_cpu}}
         path: ~/v8/v8/output/**/*

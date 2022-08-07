@@ -39,5 +39,5 @@ jobs:
         @REM call .\.github\test\build.cmd win ${{ matrix.target_cpu }} ${{ matrix.type }} ${{ env.VERSION }} ${{ matrix.crt }}
     - uses: actions/upload-artifact@v2
       with:
-        name: windows-${{matrix.target_cpu}}${{matrix.crt}}-${{matrix.type}}
+        name: windows-${{matrix.target_cpu}}
         path: v8/v8/output/**/*
