@@ -18,6 +18,7 @@ jobs:
   collect-template:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - uses: ./.github/actions/v8-version
       with:
         version: ${{ github.inputs.version }}
