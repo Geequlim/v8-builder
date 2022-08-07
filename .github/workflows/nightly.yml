@@ -21,21 +21,5 @@ jobs:
       uses: actions-x/commit@v6
       with:
         branch: main
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.ACCESS_TOKEN }}
         message: Update V8 version
-
-  build:
-    name: Dispatch build and release
-    runs-on: ubuntu-latest
-    needs: update-version
-    env:
-      PERSONAL_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-    steps:
-      - run: |
-          echo "${{ secrets.GITHUB_TOKEN }}"
-          echo "${{ secrets.ACCESS_TOKEN }}"
-      - name: Start build for linux
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: 🐧 Linux Builds
-          token: ${{ secrets.ACCESS_TOKEN }}
