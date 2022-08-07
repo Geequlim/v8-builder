@@ -17,3 +17,5 @@ runs:
         VERSION=${VERSION:-"$(cat v8_version)"}
         echo "VERSION=${VERSION}" >> $GITHUB_ENV
         echo "V8 version set to" $VERSION
+        echo "DATE=$(node .github/actions/date.js)" >> $GITHUB_ENV
+        echo "DATE set to" $(node .github/actions/date.js)
