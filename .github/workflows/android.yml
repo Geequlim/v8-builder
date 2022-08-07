@@ -18,7 +18,7 @@ env:
 
 jobs:
   build-android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     name: 🤖 Android ${{ matrix.type }} (${{ matrix.target_cpu }})
     strategy:
       fail-fast: false
