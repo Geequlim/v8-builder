@@ -63,7 +63,7 @@ console.log('========================================')
 console.log('Start build V8:');
 console.log(
     Object.entries({
-        version: process.env.VERSION,
+        version,
         target_os,
         target_cpu,
         type: is_static ? 'static' : 'dynamic',

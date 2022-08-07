@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 // -------------------- Detect and configure build target --------------------
 
-let [ _node, _script, target_os, target_cpu, lib_type, flags ] = process.argv;
+let [ _node, _script, version, target_os, target_cpu, lib_type, flags ] = process.argv;
 if (flags) {
     if (target_os === 'win') {
         flags = target_os === 'win' && flags === 'MD' ? 'MD' : '';
@@ -40,6 +40,19 @@ const options = {
 let action = is_static ? 'v8_monolith' : 'v8';
 let output = `output/libs/${target_os}_${target_cpu}${flags || ''}`;
 fs.mkdirSync(output, { recursive: true });
+
+console.log('========================================')
+console.log('Start build V8:');
+console.log(
+    Object.entries({
+        version,
+        target_os,
+        target_cpu,
+        type: is_static ? 'static' : 'dynamic',
+        flags
+    }).map(pair => `${pair[0]} = ${pair[1]}`).join('\n')
+);
+console.log('========================================')
 
 const ext = is_static ? { win: 'lib' }[target_os] || 'a' : { win: 'dll', mac: 'dylib'}[target_os] || 'so';
 const prefix = target_os === 'win' ? '' : 'lib';

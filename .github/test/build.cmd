@@ -9,4 +9,4 @@ mkdir v8
 cd v8
 mkdir v8
 cd v8
-node %~dp0\build.js %OS% %ABI% %TYPE% %CRT%
+node %~dp0\build.js %VERSION% %OS% %ABI% %TYPE% %CRT%

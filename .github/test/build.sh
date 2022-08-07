@@ -7,4 +7,4 @@ VERSION=$4
 cd ~
 mkdir -p v8/v8
 cd ~/v8/v8
-node $GITHUB_WORKSPACE/.github/test/build.js $OS $ABI $TYPE
+node $GITHUB_WORKSPACE/.github/test/build.js $VERSION $OS $ABI $TYPE
