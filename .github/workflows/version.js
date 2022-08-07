@@ -42,5 +42,6 @@ request({
     if (lastVersion != v8_version) {
       console.log(`Update v8 from ${lastVersion} to ${v8_version}`);
       fs.writeFileSync(versionFile, v8_version, 'utf-8');
+      updateV8(v8_version);
     }
 });

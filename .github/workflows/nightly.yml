@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs: {}
   schedule:
-    - cron: '0 2 * * *' # Run at 2 AM UTC
+    - cron: '0 0 * * *' # Run at 0 AM UTC
 
 env:
   REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
@@ -24,4 +24,5 @@ jobs:
       uses: actions-x/commit@v6
       with:
         branch: main
-        token: ${{ secrets.REPOSITORY_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        message: Update V8 version
