@@ -8,18 +8,49 @@ on:
 jobs:
   update-version:
     permissions: write-all
-    name: Update Version Nightly
+    name: Update V8 Version
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      version-last: ${{ steps.check.outputs.version-last }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Check V8 version
-      run: |
-        cd $GITHUB_WORKSPACE
-        yarn install
-        node ./.github/workflows/version.js
-    - name: Commit & Push changes
-      uses: actions-x/commit@v6
-      with:
-        branch: main
-        token: ${{ secrets.ACCESS_TOKEN }}
-        message: Update V8 version
+      - uses: actions/checkout@v2
+      - name: Check V8 version
+        id: check
+        run: |
+          cd $GITHUB_WORKSPACE
+          yarn install
+          node ./.github/workflows/update-version.js
+      - name: Read output
+        run: |
+          echo "version ${{steps.check.outputs.version}}"
+          echo "version-last ${{steps.check.outputs.version-last}}"
+      - name: Commit & Push changes
+        uses: actions-x/commit@v6
+        if: ${{ steps.check.outputs.version != steps.check.outputs.version-last }}
+        with:
+          branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          message: Update V8 version
+
+  build:
+    name: Dispatch build and release
+    runs-on: ubuntu-latest
+    needs: update-version
+    strategy:
+      fail-fast: false
+      matrix:
+        workflow:
+          - 🐧 Linux Builds
+          - 🍎 macOS Builds
+          - 🪟 Windows Builds
+          - 🤖 Android Builds
+          - 🍎 iOS Builds
+          - 🚢 Publish release
+    steps:
+      - name: Start build for linux
+        if: ${{ needs.update-version.outputs.version != needs.update-version.outputs.version-last }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: ${{ matrix.workflow }}
+          token: ${{ secrets.ACCESS_TOKEN }}
