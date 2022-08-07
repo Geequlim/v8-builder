@@ -1,12 +1,26 @@
 name: 🚢 Publish release
 on:
   push:
-      paths:
-        - v8_version
+    tags:
+      - '*'
+    paths:
+      - v8_version
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of V8 to build'
+        # default: 10.3.174.20
+        required: false
+      tag:
+        description: 'Build tag'
+        required: true
 jobs:
   collect-template:
     runs-on: ubuntu-latest
     steps:
+    - uses: ./.github/actions/v8-version
+      with:
+        version: ${{ github.inputs.version }}
     - name: download artifacts
       uses: actions/github-script@v6
       with:
@@ -59,13 +73,23 @@ jobs:
               }
           }
           console.log(downloaded_files);
-    - name: show dir
+    - name: Show binary files
       run: ls -R
-    - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v2
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: '*.zip'
-        tag: ${{ github.ref }}
-        overwrite: 'true'
-        file_glob: 'true'
+        tag_name: ${{ github.ref }}
+        release_name: V8_${{ env.VERSION }}_${{ github.ref }}
+        draft: true
+        prerelease: false
+    - uses: xresloader/upload-to-github-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        file: "*.zip"
+        release_id: ${{ steps.create_release.outputs.id }}
+        overwrite: true
+        verbose: true

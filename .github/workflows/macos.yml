@@ -1,8 +1,6 @@
 name: 🍎 macOS Builds
 on:
-  push:
-      paths:
-        - v8_version
+  push: {}
   pull_request: {}
   workflow_dispatch:
     inputs:
@@ -10,9 +8,6 @@ on:
         description: 'Version of V8 to build'
         # default: 10.3.174.20
         required: false
-      tag:
-        description: 'Build tag'
-        required: true
 
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-macos

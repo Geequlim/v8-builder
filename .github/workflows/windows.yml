@@ -1,8 +1,6 @@
 name: 🪟 Windows Builds
 on:
-  push:
-      paths:
-        - v8_version
+  push: {}
   pull_request: {}
   workflow_dispatch:
     inputs:
@@ -10,9 +8,6 @@ on:
         description: 'Version of V8 to build'
         # default: 10.3.174.20
         required: false
-      tag:
-        description: 'Build tag'
-        required: true
 
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-windows
@@ -44,4 +39,4 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: windows-${{matrix.target_cpu}}-${{matrix.type}}
-        path: ~/v8/v8/output/**/*
+        path: v8/v8/output/**/*
