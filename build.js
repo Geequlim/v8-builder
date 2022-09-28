@@ -49,6 +49,9 @@ const options = {
     v8_use_external_startup_data: false,
     v8_enable_pointer_compression: false,
 
+    v8_enable_sandbox: version > '10.5.218.8_20220914' ? false : undefined,
+    v8_enable_pointer_compression_shared_cage: version > '10.5.218.8_20220914' ? false : undefined,
+
     enable_ios_bitcode: target_os === 'ios' ? false : undefined,
     ios_enable_code_signing: target_os === 'ios' ? false : undefined,
     ios_deployment_target: target_os === 'ios' ? 10 : undefined,
@@ -151,7 +154,5 @@ libs.map(lib => {
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive: true});
         fs.copyFileSync(src, file);
         console.log(`copy ${src} ==> ${file}`);
-    } else {
-        console.warn(`copy ${src} ==> ${file} failed`);
     }
 });
